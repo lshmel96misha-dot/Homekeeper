@@ -370,6 +370,21 @@ const EMPLOYEES = {
 const OWNER_EMAIL = 'lshmel96misha@gmail.com';
 function isOwner(){ return currentUser && currentUser.email === OWNER_EMAIL; }
 
+/* ============ TELEGRAM-УВЕДОМЛЕНИЯ ============ */
+const TG_BOT_TOKEN = '8955489915:AAFipjGftKfsjnVVE6Y2DOQ7sp2L5sQGliw';
+const TG_CHAT_ID = '1323850514';
+async function sendTelegramNotify(text){
+  try{
+    await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TG_CHAT_ID, text: text, parse_mode: 'HTML' })
+    });
+  }catch(e){
+    console.error('Telegram уведомление не отправлено:', e);
+  }
+}
+
 let supabaseClient = null;
 let supabaseReady = false;
 
@@ -894,6 +909,7 @@ function createClient(){
   showToast('Новая карточка создана');
   saveClients();
   saveNextId();
+  sendTelegramNotify(`🆕 <b>Новый клиент создан</b>\n\nКто создал: ${esc(currentUser.name)} (${currentUser.role==='domhit'?'ДомХит':'Хранитель'})\nДата: ${new Date().toLocaleString('ru-RU')}`);
 }
 
 /* ============ TOAST ============ */
