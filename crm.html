@@ -366,6 +366,10 @@ const EMPLOYEES = {
   'tamara.yaroslavtseva@gmail.com': { role: 'domhit',  name: 'Ярославцева Тамара' }
 };
 
+/* Владелец — только у этого email есть право удалять карточки клиентов */
+const OWNER_EMAIL = 'lshmel96misha@gmail.com';
+function isOwner(){ return currentUser && currentUser.email === OWNER_EMAIL; }
+
 let supabaseClient = null;
 let supabaseReady = false;
 
@@ -811,7 +815,7 @@ function renderCard(c){
 
       <div class="cb-footer">
         <div class="cb-foot-left">Изменения видны всем сотрудникам обеих компаний</div>
-        <button class="btn-delete" onclick="deleteClient(${c.id})"><i class="ti ti-trash"></i> Удалить карточку</button>
+        ${isOwner() ? `<button class="btn-delete" onclick="deleteClient(${c.id})"><i class="ti ti-trash"></i> Удалить карточку</button>` : ''}
       </div>
     </div>
   </div>`;
@@ -861,6 +865,10 @@ function toggleContract(id){
 }
 
 function deleteClient(id){
+  if(!isOwner()){
+    showToast('Удаление доступно только владельцу аккаунта');
+    return;
+  }
   if(!confirm('Удалить карточку клиента без возможности восстановления?')) return;
   clients = clients.filter(x=>x.id!==id);
   renderFeed();
